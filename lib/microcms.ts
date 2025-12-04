@@ -24,18 +24,31 @@ export async function getAllBlogs(
   if (!client) {
     return { contents: [], totalCount: 0 };
   }
-  const data = await client.get({
-    endpoint: "blogs",
-    queries: {
-      limit,
-      offset,
-      orders: "-publishedAt",
-    },
-  });
-  return {
-    contents: data.contents as Blog[],
-    totalCount: data.totalCount,
-  };
+  try {
+    const data = await client.get({
+      endpoint: "blogs",
+      queries: {
+        limit,
+        offset,
+        orders: "-publishedAt",
+        // publishedAtが設定されている記事のみを取得（公開済み記事）
+        // filters: "publishedAt[exists]true", // 必要に応じて有効化
+      },
+    });
+    
+    // デバッグ用（開発環境のみ）
+    if (process.env.NODE_ENV === "development") {
+      console.log(`APIから取得: ${data.contents.length}件, 総件数: ${data.totalCount}`);
+    }
+    
+    return {
+      contents: data.contents as Blog[],
+      totalCount: data.totalCount,
+    };
+  } catch (error: any) {
+    console.error("記事取得エラー:", error.message);
+    return { contents: [], totalCount: 0 };
+  }
 }
 
 export async function getBlogById(id: string): Promise<Blog | null> {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import BlogImage from "@/components/BlogImage";
 import type { Blog } from "@/types/blog";
 
 type ArticleCardProps = {
@@ -15,25 +15,15 @@ export default function ArticleCard({ blog }: ArticleCardProps) {
       })
     : null;
 
-  // デフォルト画像のURL（Placeholder Image Serviceを使用）
-  const defaultImageUrl = "https://placehold.co/800x600/e5e7eb/9ca3af?text=No+Image";
-
   return (
     <article className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <Link href={`/posts/${blog.id}`}>
         <div className="relative w-full h-48 bg-gray-200">
-          <Image
-            src={blog.eyecatch?.url || defaultImageUrl}
+          <BlogImage
+            src={blog.eyecatch?.url}
             alt={blog.title}
             fill
             className="object-cover"
-            onError={(e) => {
-              // エラー時もデフォルト画像を表示
-              const target = e.target as HTMLImageElement;
-              if (target.src !== defaultImageUrl) {
-                target.src = defaultImageUrl;
-              }
-            }}
           />
         </div>
         <div className="p-4">

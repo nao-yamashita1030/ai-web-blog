@@ -13,29 +13,64 @@ type MarkdownContentProps = {
 function isHTML(str: string): boolean {
   if (!str || typeof str !== "string") return false;
   const trimmed = str.trim();
-  // HTMLタグが存在し、かつマークダウン記法が含まれていない場合はHTMLと判定
+  // HTMLタグが存在するか確認
   const htmlRegex = /<[a-z][\s\S]*>/i;
-  const hasMarkdownInTags = /<[^>]*>.*[#*`-]/.test(trimmed);
-  return htmlRegex.test(trimmed) && !hasMarkdownInTags;
+  return htmlRegex.test(trimmed);
 }
 
-// HTMLタグ内のマークダウン記法を検出する関数
+// HTMLタグ内にマークダウン記法が含まれているか確認
 function hasMarkdownInHTML(str: string): boolean {
   if (!str || typeof str !== "string") return false;
-  // HTMLタグ内にマークダウン記法が含まれているか確認
-  return /<[^>]*>.*[#*`-]/.test(str);
+  // HTMLタグ内にマークダウン記法（#, *, `, -, ##, ###など）が含まれているか確認
+  return /<[^>]*>.*[#*`-]/.test(str) || /<p>.*#/.test(str) || /<p>.*\*/.test(str);
+}
+
+// HTMLタグを除去してマークダウンに変換
+function extractMarkdownFromHTML(html: string): string {
+  if (!html || typeof html !== "string") return "";
+  
+  try {
+    // HTMLタグを除去
+    let markdown = html.replace(/<[^>]+>/g, "\n");
+    
+    // HTMLエンティティを変換
+    markdown = markdown
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    // 連続する改行を整理（最大2つまで）
+    markdown = markdown.replace(/\n{3,}/g, "\n\n");
+    
+    return markdown.trim();
+  } catch (error) {
+    console.error("Error extracting markdown from HTML:", error);
+    return html;
+  }
 }
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
   const [sanitizedContent, setSanitizedContent] = useState<string>("");
   const [isClient, setIsClient] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setIsClient(true);
-    // クライアントサイドでDOMPurifyを使用してサニタイズ
-    if (isHTML(content) && !hasMarkdownInHTML(content)) {
-      setSanitizedContent(DOMPurify.sanitize(content));
-    } else {
+    setError(null);
+    
+    try {
+      // クライアントサイドでDOMPurifyを使用してサニタイズ
+      if (isHTML(content) && !hasMarkdownInHTML(content)) {
+        setSanitizedContent(DOMPurify.sanitize(content));
+      } else {
+        setSanitizedContent(content);
+      }
+    } catch (err) {
+      console.error("Error processing content:", err);
+      setError("コンテンツの処理中にエラーが発生しました");
       setSanitizedContent(content);
     }
   }, [content]);
@@ -45,17 +80,20 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     return <div className="prose prose-lg max-w-none" />;
   }
 
+  // エラーが発生した場合は元のコンテンツを表示
+  if (error) {
+    return (
+      <div className="prose prose-lg max-w-none">
+        <p className="text-red-600">{error}</p>
+        <div dangerouslySetInnerHTML={{ __html: content }} />
+      </div>
+    );
+  }
+
   // HTMLタグ内にマークダウン記法が含まれている場合は、HTMLタグを除去してマークダウンとして処理
   if (hasMarkdownInHTML(content)) {
-    // HTMLタグを除去してマークダウンとして処理
-    const markdownContent = content
-      .replace(/<[^>]+>/g, "") // HTMLタグを除去
-      .replace(/&nbsp;/g, " ") // &nbsp;をスペースに変換
-      .replace(/&amp;/g, "&") // &amp;を&に変換
-      .replace(/&lt;/g, "<") // &lt;を<に変換
-      .replace(/&gt;/g, ">") // &gt;を>に変換
-      .trim();
-
+    const markdownContent = extractMarkdownFromHTML(content);
+    
     return (
       <div className="prose prose-lg max-w-none">
         <ReactMarkdown

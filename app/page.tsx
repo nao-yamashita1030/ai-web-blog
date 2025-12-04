@@ -11,7 +11,10 @@ export default async function Home() {
 
   // デバッグ用（開発環境のみ）
   if (process.env.NODE_ENV === "development") {
-    console.log(`取得した記事数: ${blogs.length}, 総件数: ${totalCount}`);
+    console.log(`[Home] 取得した記事数: ${blogs.length}, 総件数: ${totalCount}`);
+    blogs.forEach((blog, index) => {
+      console.log(`[Home] 記事${index + 1}: ${blog.title} (ID: ${blog.id})`);
+    });
   }
 
   return (

@@ -17,6 +17,14 @@ export default function ArticleList({
   onPageChange,
   showPagination = true,
 }: ArticleListProps) {
+  // デバッグ用（開発環境のみ）
+  if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+    console.log(`[ArticleList] 表示する記事数: ${blogs.length}`);
+    blogs.forEach((blog, index) => {
+      console.log(`[ArticleList] 記事${index + 1}: ${blog.title} (ID: ${blog.id})`);
+    });
+  }
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

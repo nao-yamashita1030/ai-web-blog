@@ -30,8 +30,14 @@ function extractMarkdownFromHTML(html: string): string {
   if (!html || typeof html !== "string") return "";
   
   try {
-    // HTMLタグを除去
-    let markdown = html.replace(/<[^>]+>/g, "\n");
+    // HTMLタグを除去（閉じタグの前に改行を追加）
+    let markdown = html
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<\/div>/gi, "\n\n")
+      .replace(/<\/h[1-6]>/gi, "\n\n")
+      .replace(/<\/li>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "");
     
     // HTMLエンティティを変換
     markdown = markdown
@@ -40,11 +46,24 @@ function extractMarkdownFromHTML(html: string): string {
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
+      .replace(/&#39;/g, "'")
+      .replace(/&#x27;/g, "'")
+      .replace(/&#x2F;/g, "/");
+    
+    // マークダウン記法の前に改行を追加（必要に応じて）
+    // 注意: **（太字）や*（強調）を壊さないように注意
+    // まず、見出し記法（#）の前に改行を追加
+    markdown = markdown
+      .replace(/([^\n])(#{1,3})([^#\s\n])/g, "$1\n$2$3") // #, ##, ###の前に改行
+      // リスト項目の-の前に改行（ただし、**の後や数字の後は除く）
+      .replace(/([^\n\*])\s+-\s+([^\s-])/g, "$1\n- $2")
+      // リスト項目の*の前に改行（ただし、**の一部は除く）
+      .replace(/([^\n\*])\s+\*\s+([^\s\*])/g, "$1\n* $2");
     
     // 連続する改行を整理（最大2つまで）
     markdown = markdown.replace(/\n{3,}/g, "\n\n");
     
+    // 先頭と末尾の不要な改行を削除
     return markdown.trim();
   } catch (error) {
     console.error("Error extracting markdown from HTML:", error);

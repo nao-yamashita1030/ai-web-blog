@@ -89,9 +89,7 @@ export default async function BlogDetailPage({ params }: Props) {
               defaultImage="https://placehold.co/1200x600/e5e7eb/9ca3af?text=No+Image"
             />
           </div>
-          <div className="prose prose-lg max-w-none">
-            <MarkdownContent content={blog.content} />
-          </div>
+          <MarkdownContent content={blog.content} />
         </article>
       </main>
       <Footer />

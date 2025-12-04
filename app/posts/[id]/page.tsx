@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogDetailPage({ params }: Props) {
   const { id } = await params;
-  const blog = await getBlogById(id).catch(() => null);
+  const blog = await getBlogById(id);
 
   if (!blog || !blog.publishedAt) {
     notFound();

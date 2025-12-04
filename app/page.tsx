@@ -4,7 +4,8 @@ import Footer from "@/components/Footer";
 import ArticleList from "@/components/ArticleList";
 
 // 開発環境ではキャッシュを無効化、本番環境では1時間ごとに再生成
-export const revalidate = process.env.NODE_ENV === "development" ? 0 : 3600;
+export const revalidate = 0; // 常に最新データを取得
+export const dynamic = "force-dynamic"; // 動的レンダリングを強制
 
 export default async function Home() {
   const { contents: blogs, totalCount } = await getAllBlogs(100, 0);

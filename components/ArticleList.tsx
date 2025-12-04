@@ -18,11 +18,23 @@ export default function ArticleList({
   showPagination = true,
 }: ArticleListProps) {
   // デバッグ用（開発環境のみ）
-  if (process.env.NODE_ENV === "development" && typeof window !== "undefined") {
+  if (process.env.NODE_ENV === "development") {
     console.log(`[ArticleList] 表示する記事数: ${blogs.length}`);
-    blogs.forEach((blog, index) => {
-      console.log(`[ArticleList] 記事${index + 1}: ${blog.title} (ID: ${blog.id})`);
-    });
+    if (blogs.length > 0) {
+      blogs.forEach((blog, index) => {
+        console.log(`[ArticleList] 記事${index + 1}: ${blog.title} (ID: ${blog.id})`);
+      });
+    } else {
+      console.warn("[ArticleList] 記事が0件です");
+    }
+  }
+
+  if (!blogs || blogs.length === 0) {
+    return (
+      <div className="text-center text-gray-600 py-8">
+        <p>記事がありません</p>
+      </div>
+    );
   }
 
   return (

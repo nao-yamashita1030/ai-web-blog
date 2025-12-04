@@ -11,14 +11,17 @@ type MarkdownContentProps = {
 
 // HTMLかマークダウンかを判定する関数
 function isHTML(str: string): boolean {
+  if (!str || typeof str !== "string") return false;
   const htmlRegex = /<[a-z][\s\S]*>/i;
-  return htmlRegex.test(str);
+  return htmlRegex.test(str.trim());
 }
 
 export default function MarkdownContent({ content }: MarkdownContentProps) {
   const [sanitizedContent, setSanitizedContent] = useState<string>("");
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     // クライアントサイドでDOMPurifyを使用してサニタイズ
     if (isHTML(content)) {
       setSanitizedContent(DOMPurify.sanitize(content));
@@ -26,6 +29,11 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
       setSanitizedContent(content);
     }
   }, [content]);
+
+  // サーバーサイドレンダリング時は空のdivを返す
+  if (!isClient) {
+    return <div className="prose prose-lg max-w-none" />;
+  }
 
   // HTMLの場合はサニタイズして表示、マークダウンの場合はreact-markdownで表示
   if (isHTML(content)) {
@@ -37,9 +45,25 @@ export default function MarkdownContent({ content }: MarkdownContentProps) {
     );
   }
 
+  // マークダウンの場合はreact-markdownで表示
   return (
     <div className="prose prose-lg max-w-none">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          // コードブロックのスタイリング
+          code: ({ node, className, children, ...props }) => {
+            const match = /language-(\w+)/.exec(className || "");
+            return (
+              <code className={className} {...props}>
+                {children}
+              </code>
+            );
+          },
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     </div>
   );
 }

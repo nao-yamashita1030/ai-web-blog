@@ -80,16 +80,25 @@ export default async function BlogDetailPage({ params }: Props) {
               ))}
             </div>
           )}
-          {blog.eyecatch && (
-            <div className="relative w-full h-64 mb-8">
-              <Image
-                src={blog.eyecatch.url}
-                alt={blog.title}
-                fill
-                className="object-cover rounded-lg"
-              />
-            </div>
-          )}
+          <div className="relative w-full h-64 mb-8 bg-gray-200 rounded-lg overflow-hidden">
+            <Image
+              src={
+                blog.eyecatch?.url ||
+                "https://placehold.co/1200x600/e5e7eb/9ca3af?text=No+Image"
+              }
+              alt={blog.title}
+              fill
+              className="object-cover"
+              onError={(e) => {
+                // エラー時もデフォルト画像を表示
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes("placehold.co")) {
+                  target.src =
+                    "https://placehold.co/1200x600/e5e7eb/9ca3af?text=No+Image";
+                }
+              }}
+            />
+          </div>
           <div className="prose prose-lg max-w-none">
             <MarkdownContent content={blog.content} />
           </div>

@@ -148,3 +148,4 @@
 - `.gitignore`に`.env.local`を追加
 - Vercelの環境変数設定で本番環境の値を設定
 
+

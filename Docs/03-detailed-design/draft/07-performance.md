@@ -194,3 +194,4 @@
 - **Lighthouseスコア**: 90点以上
 - **Core Web Vitals**: すべての指標で「良好」を達成
 
+

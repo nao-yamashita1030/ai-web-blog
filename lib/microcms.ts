@@ -25,7 +25,7 @@ export async function getAllBlogs(
     return { contents: [], totalCount: 0 };
   }
   const data = await client.get({
-    endpoint: "blog",
+    endpoint: "blogs",
     queries: {
       limit,
       offset,
@@ -44,7 +44,7 @@ export async function getBlogById(id: string): Promise<Blog | null> {
   }
   try {
     const data = await client.get({
-      endpoint: "blog",
+      endpoint: "blogs",
       contentId: id,
     });
     return data as Blog;
@@ -62,7 +62,7 @@ export async function getBlogsByCategory(
     return { contents: [], totalCount: 0 };
   }
   const data = await client.get({
-    endpoint: "blog",
+    endpoint: "blogs",
     queries: {
       limit,
       offset,
@@ -85,7 +85,7 @@ export async function getBlogsByTag(
     return { contents: [], totalCount: 0 };
   }
   const data = await client.get({
-    endpoint: "blog",
+    endpoint: "blogs",
     queries: {
       limit,
       offset,
@@ -104,7 +104,7 @@ export async function getAllCategories(): Promise<Category[]> {
     return [];
   }
   const data = await client.get({
-    endpoint: "category",
+    endpoint: "categories",
   });
   return data.contents as Category[];
 }
@@ -113,9 +113,15 @@ export async function getAllTags(): Promise<Tag[]> {
   if (!client) {
     return [];
   }
-  const data = await client.get({
-    endpoint: "tag",
-  });
-  return data.contents as Tag[];
+  try {
+    const data = await client.get({
+      endpoint: "tags",
+    });
+    return data.contents as Tag[];
+  } catch (error) {
+    // タグエンドポイントが存在しない場合は空配列を返す
+    console.warn('Tags endpoint not found, returning empty array');
+    return [];
+  }
 }
 

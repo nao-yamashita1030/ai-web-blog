@@ -6,7 +6,8 @@ import MarkdownContent from "@/components/MarkdownContent";
 import BlogImage from "@/components/BlogImage";
 import type { Metadata } from "next";
 
-export const revalidate = 3600; // ISR: 1時間ごとに再生成
+export const revalidate = 0; // 常に最新データを取得
+export const dynamic = "force-dynamic"; // 動的レンダリングを強制
 
 type Props = {
   params: Promise<{ id: string }>;

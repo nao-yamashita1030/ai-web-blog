@@ -35,23 +35,34 @@ Cursorの設定ファイル（通常は `~/.cursor/mcp.json` または類似の�
 
 #### Vercel MCPサーバーの設定（オプション）
 
-Vercel MCPサーバーが利用可能な場合：
+**注意**: 現在、Vercelの公式MCPサーバーは存在しない可能性があります。代わりに、Vercel CLIを使用する方法を推奨します。
+
+詳細は [VERCEL-MCP-SETUP.md](./VERCEL-MCP-SETUP.md) を参照してください。
+
+Vercel MCPサーバーが利用可能な場合（将来の対応）：
 
 ```json
 {
   "mcpServers": {
     "vercel": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/vercel-mcp-server/dist/index.js"
+        "-y",
+        "@modelcontextprotocol/server-vercel"
       ],
       "env": {
-        "VERCEL_TOKEN": "your-vercel-token"
+        "VERCEL_TOKEN": "your-vercel-token",
+        "VERCEL_TEAM_ID": "your-team-id"
       }
     }
   }
 }
 ```
+
+**設定ファイルの場所:**
+- Windows: `%APPDATA%\Cursor\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json`
+- macOS: `~/Library/Application Support/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
+- Linux: `~/.config/Cursor/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
 
 ### 2. 環境変数の自動取得
 

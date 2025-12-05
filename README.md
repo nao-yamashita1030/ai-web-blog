@@ -48,12 +48,37 @@ npm run dev
 
 ## デプロイ
 
+### 通常のデプロイ方法
+
 Vercelにデプロイする場合：
 
 1. GitHubリポジトリにプッシュ
 2. Vercelでプロジェクトをインポート
 3. 環境変数を設定
 4. デプロイ
+
+詳細は [デプロイ手順書](./Docs/DEPLOY.md) を参照してください。
+
+### MCPを使った自動デプロイ（推奨）
+
+MCP（Model Context Protocol）を使用してデプロイを自動化できます：
+
+1. **環境変数の自動取得**:
+   ```bash
+   npm run setup:microcms-env
+   ```
+
+2. **Vercelへの環境変数設定**:
+   ```bash
+   npm run setup:vercel-env
+   ```
+
+3. **デプロイ**:
+   ```bash
+   git push origin main
+   ```
+
+詳細は [MCP-DEPLOY.md](./Docs/MCP-DEPLOY.md) を参照してください。
 
 ## ドキュメント
 

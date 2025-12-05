@@ -18,7 +18,9 @@
     "test:direct-api": "tsx scripts/test-direct-api.ts",
     "create:test-posts": "tsx scripts/create-test-posts.ts",
     "check:blog-count": "tsx scripts/check-blog-count.ts",
-    "check:blog-content": "tsx scripts/check-blog-content.ts"
+    "check:blog-content": "tsx scripts/check-blog-content.ts",
+    "setup:microcms-env": "tsx scripts/setup-microcms-env.ts",
+    "setup:vercel-env": "tsx scripts/setup-vercel-env.ts"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",

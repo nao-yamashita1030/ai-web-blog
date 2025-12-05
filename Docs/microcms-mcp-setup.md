@@ -67,3 +67,24 @@ npm run dev
 
 ブラウザで `http://localhost:3000` を開き、記事が表示されることを確認してください。
 
+## MCPを使ったデプロイ自動化
+
+MCPを使用してVercelへのデプロイを自動化する方法については、[MCP-DEPLOY.md](./MCP-DEPLOY.md)を参照してください。
+
+### クイックスタート
+
+1. **環境変数の自動取得**:
+   ```bash
+   npm run setup:microcms-env
+   ```
+
+2. **Vercelへの環境変数設定**:
+   ```bash
+   npm run setup:vercel-env
+   ```
+
+3. **デプロイ**:
+   ```bash
+   git push origin main
+   ```
+

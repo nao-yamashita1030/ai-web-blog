@@ -204,3 +204,5 @@ score = titleMatch * 3 + contentMatch * 1 + categoryMatch * 2 + tagMatch * 2
 - 整数値のみ
 
 
+
+

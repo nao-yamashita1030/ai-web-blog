@@ -65,3 +65,5 @@ Next.jsは自動的にWeb Vitalsを計測します。以下の方法で確認で
 - [Web Vitals公式ドキュメント](https://web.dev/vitals/)
 - [Next.js Web Vitals](https://nextjs.org/docs/advanced-features/measuring-performance)
 
+
+

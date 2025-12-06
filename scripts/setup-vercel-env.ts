@@ -27,16 +27,49 @@ async function setupVercelEnv() {
   if (!serviceDomain || !apiKey) {
     console.error("❌ 環境変数が設定されていません");
     console.error("MICROCMS_SERVICE_DOMAIN と MICROCMS_API_KEY を .env.local に設定してください");
-    console.error("\nまたは、MCPサーバーが設定されている場合、自動的に取得を試みます...\n");
     
-    // MCP経由で取得を試みる（実装はMCPサーバーの設定に依存）
-    // ここでは、ユーザーに手動設定を促す
-    console.log("📝 手動設定手順:");
-    console.log("1. .env.localファイルを作成");
-    console.log("2. 以下の内容を設定:");
-    console.log("   MICROCMS_SERVICE_DOMAIN=your-service-domain");
-    console.log("   MICROCMS_API_KEY=your-api-key");
-    console.log("\nまたは、MCPサーバーを使用して自動取得してください。\n");
+    // .env.localファイルの状態を確認
+    const fs = require("fs");
+    const path = require("path");
+    const envPath = path.join(process.cwd(), ".env.local");
+    
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, "utf-8");
+      const lines = envContent.split("\n");
+      const envVars: { [key: string]: boolean } = {};
+      
+      lines.forEach((line: string) => {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const match = trimmed.match(/^([A-Z_]+)=/);
+          if (match) {
+            envVars[match[1]] = true;
+          }
+        }
+      });
+      
+      console.log("\n📋 .env.localファイルの状態:");
+      console.log(`   MICROCMS_SERVICE_DOMAIN: ${envVars["MICROCMS_SERVICE_DOMAIN"] ? "✅ 設定あり" : "❌ 設定なし"}`);
+      console.log(`   MICROCMS_API_KEY: ${envVars["MICROCMS_API_KEY"] ? "✅ 設定あり" : "❌ 設定なし"}`);
+      
+      if (!envVars["MICROCMS_SERVICE_DOMAIN"] || !envVars["MICROCMS_API_KEY"]) {
+        console.log("\n📝 以下の形式で.env.localファイルに設定してください:");
+        console.log("   MICROCMS_SERVICE_DOMAIN=your-service-domain");
+        console.log("   MICROCMS_API_KEY=your-api-key");
+        console.log("\n💡 ヒント:");
+        console.log("   - 値の前後にスペースや引用符は不要です");
+        console.log("   - コメント行（#で始まる行）は無視されます");
+        console.log("   - 空行は無視されます");
+      }
+    } else {
+      console.log("\n❌ .env.localファイルが見つかりません");
+      console.log("\n📝 .env.localファイルを作成して、以下の内容を設定してください:");
+      console.log("   MICROCMS_SERVICE_DOMAIN=your-service-domain");
+      console.log("   MICROCMS_API_KEY=your-api-key");
+    }
+    
+    console.log("\n💡 MCPサーバーが設定されている場合、自動的に取得を試みます...");
+    console.log("   現在は手動設定が必要です。\n");
     return;
   }
 
@@ -72,38 +105,34 @@ async function setupVercelEnv() {
   console.log("📝 Vercelに環境変数を設定します...\n");
 
   try {
-    // Production環境
-    console.log("🔧 Production環境に設定中...");
-    execSync(
-      `vercel env add MICROCMS_SERVICE_DOMAIN production <<< "${serviceDomain}"`,
-      { stdio: "inherit" }
-    );
-    execSync(
-      `vercel env add MICROCMS_API_KEY production <<< "${apiKey}"`,
-      { stdio: "inherit" }
-    );
+    const environments = ["production", "preview", "development"];
 
-    // Preview環境
-    console.log("\n🔧 Preview環境に設定中...");
-    execSync(
-      `vercel env add MICROCMS_SERVICE_DOMAIN preview <<< "${serviceDomain}"`,
-      { stdio: "inherit" }
-    );
-    execSync(
-      `vercel env add MICROCMS_API_KEY preview <<< "${apiKey}"`,
-      { stdio: "inherit" }
-    );
+    for (const env of environments) {
+      console.log(`🔧 ${env}環境に設定中...`);
+      
+      // PowerShell対応: echo を使用してパイプで渡す
+      try {
+        execSync(
+          `echo ${serviceDomain} | vercel env add MICROCMS_SERVICE_DOMAIN ${env}`,
+          { stdio: "inherit", shell: "powershell.exe" }
+        );
+      } catch (error: any) {
+        // 対話的入力にフォールバック
+        console.log(`   MICROCMS_SERVICE_DOMAIN を ${env} 環境に設定してください: ${serviceDomain}`);
+      }
 
-    // Development環境
-    console.log("\n🔧 Development環境に設定中...");
-    execSync(
-      `vercel env add MICROCMS_SERVICE_DOMAIN development <<< "${serviceDomain}"`,
-      { stdio: "inherit" }
-    );
-    execSync(
-      `vercel env add MICROCMS_API_KEY development <<< "${apiKey}"`,
-      { stdio: "inherit" }
-    );
+      try {
+        execSync(
+          `echo ${apiKey} | vercel env add MICROCMS_API_KEY ${env}`,
+          { stdio: "inherit", shell: "powershell.exe" }
+        );
+      } catch (error: any) {
+        // 対話的入力にフォールバック
+        console.log(`   MICROCMS_API_KEY を ${env} 環境に設定してください: ${apiKey.substring(0, 10)}...`);
+      }
+      
+      console.log("");
+    }
 
     console.log("\n✅ 環境変数の設定が完了しました！");
     console.log("\n📋 次のステップ:");
